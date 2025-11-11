@@ -1,0 +1,116 @@
+<h1>Items</h1>
+{{! READ table}}
+<table>
+    <thead>
+        <tr>
+            {{#each item.[0]}}
+            <th>
+                {{@key}}
+            </th>
+            {{/each}}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{#each item}}
+        <tr>
+            <td>{{this.item_id}}</td>
+            <td>{{this.item_name}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.size}}</td>
+            <td>{{this.color}}</td>
+            <td>{{this.sku}}</td>
+            <td>{{this.daily_rate}}</td>
+            <td>{{this.item_status}}</td>
+
+            <form id='delete_item_form'>
+                <input type='hidden' name='delete_item_id' value='{{this.item_id}}' />
+                <input type='hidden' name='delete_item_name' value='{{this.item_name}}' />
+                <td>
+                    <button type='submit'>
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+{{! CREATE form }}
+<h2>Create an item</h2>
+<form class='cuForm' id='create_item_form'>
+    <label for='create_item_name'>Item Name: </label>
+    <input type='text' name='create_item_name' id='create_item_name' required />
+
+    <label for='create_description'>Description: </label>
+    <input type='text' name='create_description' id='create_description' required />
+
+    <label for='create_size'>Size:</label>
+    <input type='text' name='create_size' id='create_size' required />
+
+    <label for='create_color'>Color:</label>
+    <input type='text' name='create_color' id='create_color' required />
+
+    <label for='create_sku'>Sku:</label>
+    <input type='text' name='create_sku' id='create_sku' />
+
+    <label for='create_daily_rate'>Daily_rate:</label>
+    <input type='number' name='create_daily_rate' id='create_daily_rate' step="0.01" min="0" required />
+
+    <label for='create_item_status'>Item_status:</label>
+    <select name='create_item_status' id='create_item_status'>
+        <option value=''>Select an Item_status</option>
+        <option value='available'>Available</option>
+        <option value='rented'>Rented</option>
+        <option value='cleaning'>Cleaning</option>
+        <option value='repair'>Repair</option>
+        <option value='retired'>Retired</option>
+    </select>
+
+    <input type='submit' />
+</form>
+
+{{! UPDATE form }}
+<h2>Update an item</h2>
+<form class='cuForm' id='update_item_form'>
+    <label for='update_item_id'>Item to Update: </label>
+    <select name='update_item_id' id='update_item_id' required>
+        <option value='' disabled selected>Select an item</option>
+        {{#each item}}
+        <option value='{{this.item_id}}' required>
+            {{this.customer_id}}
+            -
+            {{this.item_name}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='update_description'>Description: </label>
+    <input type='text' name='update_description' id='update_description' />
+
+    <label for='update_size'>Size: </label>
+    <input type='text' name='update_size' id='update_size' />
+
+    <label for='update_color'>Color: </label>
+    <input type='text' name='update_color' id='update_color' />
+
+    <label for='update_sku'>Sku: </label>
+    <input type='text' name='update_sku' id='update_sku' />
+
+    <label for='update_daily_rate'>Daily_rate: </label>
+    <input type='number' name='update_daily_rate' id='update_daily_rate' step="0.01" min="0" />
+
+    <label for='update_item_status'>Item_status:</label>
+    <select name='update_item_status' id='update_item_status'>
+        <option value=''>Select an Item_status</option>
+        <option value='available'>Available</option>
+        <option value='rented'>Rented</option>
+        <option value='cleaning'>Cleaning</option>
+        <option value='repair'>Repair</option>
+        <option value='retired'>Retired</option>
+    </select>
+
+    <input type='submit' />
+</form>

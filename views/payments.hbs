@@ -1,0 +1,141 @@
+<h1>Payments</h1>
+{{! READ table}}
+<table>
+    <thead>
+        <tr>
+            {{#each payment.[0]}}
+            <th>
+                {{@key}}
+            </th>
+            {{/each}}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{#each payment}}
+        <tr>
+            <td>{{this.payment_id}}</td>
+            <td>{{this.rental_id}}</td>
+            <td>{{this.amount}}</td>
+            <td>{{this.payment_status}}</td>
+            <td>{{this.payment_method}}</td>
+            <td>{{this.paid_at}}</td>
+            <td>{{this.transaction_number}}</td>
+            <td>{{this.card_last4}}</td>
+            <td>{{this.card_brand}}</td>
+
+            {{! DELETE form }}
+            <form id='delete_payment_form'>
+                <input type='hidden' name='delete_payment_id' value='{{this.payment_id}}' />
+                <td>
+                    <button type='submit'>
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+{{! CREATE Form }}
+<h2> Create a Payment</h2>
+<form class="cuForm" id="create_payment_form">
+    <label for="create_payment">Rental ID:</label>
+    <select>
+        {{#each rental}}
+        <option value="{{this.rental_id}}" required>Choose Rental ID</option>
+        {{/each}}
+    </select>
+
+    <label for="create_payment_amount">Payment amount: </label>
+    <input type="number" name="create_payment_amount" id="create_payment_amount" step="0.01" min="0" required />
+
+    <label for='create_payment_status'>Payment status:</label>
+    <select name='create_payment_status' id='create_payment_status' required>
+        <option value=''>Select Payment status</option>
+        <option value='authorized'>Authorized</option>
+        <option value='captured'>Captured</option>
+        <option value='refunded'>Refunded</option>
+        <option value='failed'>Failed</option>
+        <option value='voided'>Voided</option>
+    </select>
+
+    <label for='create_payment_method'>Payment method:</label>
+    <select name='create_payment_method' id='create_payment_method' required>
+        <option value=''>Select Payment_method</option>
+        <option value='card'>Card</option>
+        <option value='cash'>Cash</option>
+        <option value='paypal'>PayPal</option>
+        <option value='bank'>Bank</option>
+    </select>
+
+    <label for="create_payment_date">Payment date: </label>
+    <input type="Date" name="create_payment_date" id="create_payment_date" required />
+
+    <label for="create_transaction_number">Transaction number: </label>
+    <input type="text" name="create_transaction_number" id="create_transaction_number" required />
+
+    <label for='create_card_last4'>Card_last4:</label>
+    <input type='text' name='create_card_last4' id='create_card_last4' />
+
+    <label for='create_card_brand'>Bank:</label>
+    <input type='text' name='create_card_brand' id='create_card_brand' />
+
+    <input type="submit" />
+</form>
+
+{{! UPDATE Form }}
+<h2> Update a Payment</h2>
+<form class="cuForm" id="update_payment_form">
+    <label for="update_payment">Payment ID:</label>
+    <select>
+        {{#each payment}}
+        <option value="{{this.payment_id}}" required>Choose Payment ID</option>
+        {{/each}}
+    </select>
+
+    <label for="update_rental_id">Payment amount:</label>
+    <select>
+        {{#each rental}}
+        <option value="{{this.rental_id}}" required>Choose Rental ID</option>
+        {{/each}}
+    </select>
+
+    <label for="update_payment_amount">Payment amount: </label>
+    <input type="number" name="update_payment_amount" id="update_payment_amount" step="0.01" min="0" required />
+
+    <label for='update_payment_status'>Payment status:</label>
+    <select name='update_payment_status' id='update_payment_status' required>
+        <option value=''>Select Payment status</option>
+        <option value='authorized'>Authorized</option>
+        <option value='captured'>Captured</option>
+        <option value='refunded'>Refunded</option>
+        <option value='failed'>Failed</option>
+        <option value='voided'>Voided</option>
+    </select>
+
+    <label for='update_payment_method'>Payment method:</label>
+    <select name='update_payment_method' id='update_payment_method' required>
+        <option value=''>Select Payment method</option>
+        <option value='card'>Card</option>
+        <option value='cash'>Cash</option>
+        <option value='paypal'>PayPal</option>
+        <option value='bank'>Bank</option>
+    </select>
+
+    <label for="update_payment_date">Payment Date: </label>
+    <input type="Date" name="update_payment_date" id="update_payment_date" required />
+
+    <label for="update_transaction_number">Transaction number: </label>
+    <input type="text" name="update_transaction_number" id="update_transaction_number" required />
+
+    <label for='update_card_last4'>Card_last4:</label>
+    <input type='text' name='update_card_last4' id='update_card_last4' />
+
+    <label for='update_card_brand'>Bank:</label>
+    <input type='text' name='update_card_brand' id='update_card_brand' />
+
+    <input type="submit" />
+</form>

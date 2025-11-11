@@ -1,0 +1,32 @@
+<h1>Rental Items</h1>
+
+{{! READ table }}
+<table>
+    <thead>
+        <tr>
+            {{#each rental_item.[0]}}
+            <th>
+                {{@key}}
+            </th>
+            {{/each}}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{! For each row, print the id, fname, lname, homeworld and age }}
+        {{#each rental_item}}
+        <tr>
+            <td>{{this.rental_item_id}}</td>
+            <td>{{this.rental_id}}</td>
+            <td>{{this.item_id}}</td>
+            <td>{{this.item_due_date}}</td>
+            <td>{{this.item_returned_at}}</td>
+            <td>{{this.line_daily_rate}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+<h1></h1>
+<p>[Do we need to implement create, update and delete for an intersection table? tbd... ]</p>

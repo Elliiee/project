@@ -1,0 +1,113 @@
+<h1>Rentals</h1>
+{{! READ table}}
+<table>
+    <thead>
+        <tr>
+            {{#each rental.[0]}}
+            <th>
+                {{@key}}
+            </th>
+            {{/each}}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{#each rental}}
+        <tr>
+            <td>{{this.rental_id}}</td>
+            <td>{{this.customer_id}}</td>
+            <td>{{this.rental_date}}</td>
+            <td>{{this.due_date}}</td>
+            <td>{{this.all_items_return_at}}</td>
+            <td>{{this.rental_status}}</td>
+            <td>{{this.deposit_amount}}</td>
+
+            {{! DELETE form }}
+            <form id='delete_rental_form'>
+                <input type='hidden' name='delete_rental_id' value='{{this.rental_id}}' />
+                <td>
+                    <button type='submit'>
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+{{! CREATE Form }}
+<h2> Create a Rental</h2>
+<form class="cuForm" id="create_rental_form">
+    <label for="create_rental_customer">Customer:</label>
+    <select>
+        {{#each customer}}
+        <option value="{{this.customer_id}}" required>{{this.first_name}} {{this.last_name}}</option>
+        {{/each}}
+    </select>
+
+    <label for="create_rental_date">Rental Date: </label>
+    <input type="Date" name="create_rental_date" id="create_rental_date" required />
+
+    <label for="create_due_date">Due Date: </label>
+    <input type="Date" name="create_due_date" id="create_due_date" required />
+
+    <label for="create_all_return_date">All items Returned Date: </label>
+    <input type="Date" name="create_all_return_date" id="create_all_return_date" />
+
+    <label for='create_rental_status'>Rental_status:</label>
+    <select name='create_rental_status' id='create_rental_status' required>
+        <option value=''>Select Rental_status</option>
+        <option value='open'>Open</option>
+        <option value='closed'>Closed</option>
+        <option value='overdue'>Overdue</option>
+        <option value='cancelled'>Cancelled</option>
+    </select>
+
+    <label for='create_deposit'>Deposit:</label>
+    <input type='number' name='create_deposit' id='create_deposit' step="0.01" min="0" required />
+
+    <input type="submit" />
+</form>
+
+{{! UPDATE Form }}
+<h2> Update a Rental</h2>
+<form class="cuForm" id="update_rental_form">
+    <label for="update_rental_id">Rental ID:</label>
+    <select>
+        {{#each rental}}
+        <option value="{{this.rental_id}}" required>{{this.rental_id}}</option>
+        {{/each}}
+    </select>
+
+    <label for="update_rental_customer">Customer:</label>
+    <select>
+        {{#each customer}}
+        <option value="{{this.customer_id}}" required>{{this.first_name}} {{this.last_name}}</option>
+        {{/each}}
+    </select>
+
+    <label for="update_rental_date">Rental Date: </label>
+    <input type="Date" name="update_rental_date" id="update_rental_date" required />
+
+    <label for="update_due_date">Due Date: </label>
+    <input type="Date" name="update_due_date" id="update_due_date" required />
+
+    <label for="update_all_return_date">All items Returned Date: </label>
+    <input type="Date" name="update_all_return_date" id="update_all_return_date" />
+
+    <label for='update_rental_status'>Rental_status:</label>
+    <select name='update_rental_status' id='update_rental_status' required>
+        <option value=''>Update Rental_status</option>
+        <option value='open'>Open</option>
+        <option value='closed'>Closed</option>
+        <option value='overdue'>Overdue</option>
+        <option value='cancelled'>Cancelled</option>
+    </select>
+
+    <label for='update_deposit'>Deposit:</label>
+    <input type='number' name='update_deposit' id='update_deposit' step="0.01" min="0" required />
+
+    <input type="submit" />
+</form>
