@@ -1,4 +1,5 @@
-//Citation: this is the sample code from Build app.js section of Exploration Web Application Technology
+//Citation: this is modified and updated based the sample code 
+// from Build app.js section of Exploration Web Application Technology
 //
 // ########################################
 // ########## SETUP
@@ -60,8 +61,12 @@ app.get('/items', async function (req, res) {
 
 app.get('/rentals', async function (req, res) {
     try {
-        const query1 = 'SELECT * FROM Rentals;';
+        const query1 = 'SELECT Rentals.rental_id, Customers.customer_id, Customers.first_name, \
+        Customers.last_name, Rentals.rental_date, Rentals.due_date, Rentals.all_items_return_at,\
+        Rentals.rental_status, Rentals.deposit_amount \
+        FROM Rentals JOIN Customers ON Rentals.customer_id = Customers.customer_id;';
         const [rental] = await db.query(query1);
+
         const query2 = 'SELECT * FROM Customers;';
         const [customer] = await db.query(query2);
         res.render('rentals', { rental: rental, customer: customer });
@@ -73,7 +78,9 @@ app.get('/rentals', async function (req, res) {
 
 app.get('/rental_items', async function (req, res) {
     try {
-        const query1 = 'SELECT * FROM Rental_Items;';
+        const query1 = 'SELECT Rental_Items.rental_item_id, Rental_Items.rental_id, Rental_Items.item_id, \
+        Items.item_name, Rental_Items.item_due_date, Rental_Items.item_returned_at, Rental_Items.line_daily_rate \
+        FROM Rental_Items JOIN Items ON Items.item_id = Rental_Items.rental_item_id';
         const [rental_item] = await db.query(query1);
         res.render('rental_items', { rental_item: rental_item });
     } catch (error) {

@@ -9,7 +9,7 @@
                 {{@key}}
             </th>
             {{/each}}
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
 
@@ -20,13 +20,65 @@
             <td>{{this.rental_item_id}}</td>
             <td>{{this.rental_id}}</td>
             <td>{{this.item_id}}</td>
+            <td>{{this.item_name}}</td>
             <td>{{this.item_due_date}}</td>
             <td>{{this.item_returned_at}}</td>
             <td>{{this.line_daily_rate}}</td>
+
+            <form id='delete_rental_item_form'>
+                <input type='hidden' name='delete_rental_item_id' value='{{this.rental_item_id}}' />
+                <td>
+                    <button type='submit'>
+                        Delete
+                    </button>
+                </td>
+            </form>
         </tr>
         {{/each}}
     </tbody>
 </table>
 
-<h1></h1>
-<p>[Do we need to implement create, update and delete for an intersection table? tbd... ]</p>
+{{! UPDATE form }}
+<h2>Update a rental item</h2>
+<form class='cuForm' id='update_rental_item_form'>
+    <label for='update_rental_item_id'>Select Rental_Item ID to Update: </label>
+    <select name='update_rental_item_id' id='update_rental_item_id' required>
+        <option value='' disabled selected>Select a rental item id</option>
+        {{#each rental_item}}
+        <option value='{{this.rental_item_id}}' required>
+            {{this.rental_item_id}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='update_rental_id'>Rental ID: </label>
+    <select name='update_rental_id' id='update_rental_id' required>
+        <option value='' disabled selected>rental id</option>
+        {{#each rental_item}}
+        <option value='{{this.rental_id}}' required>
+            {{this.rental_id}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='update_item_id'>Item ID: </label>
+    <select name='update_item_id' id='update_item_id' required>
+        <option value='' disabled selected>item id</option>
+        {{#each rental_item}}
+        <option value='{{this.item_id}}' required>
+            {{this.item_id}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='update_item_due_date'>Item due date: </label>
+    <input type='Date' name='update_item_due_date' id='update_item_due_date' required />
+
+    <label for='update_item_returned_at'>Item returned at: </label>
+    <input type='Date' name='update_item_returned_at' id='update_item_returned_at' />
+
+    <label for='update_line_daily_rate'>Line daily rate:</label>
+    <input type='number' name='update_line_daily_rate' id='update_line_daily_rate' step="0.01" min="0" required />
+
+    <input type='submit' value="Update" />
+</form>

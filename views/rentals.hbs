@@ -8,30 +8,30 @@
                 {{@key}}
             </th>
             {{/each}}
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
 
     <tbody>
         {{#each rental}}
-        <tr>
+        <tr data-rental-id="{{this.rental_id}}">
             <td>{{this.rental_id}}</td>
             <td>{{this.customer_id}}</td>
+            <td>{{this.first_name}}</td>
+            <td>{{this.last_name}}</td>
             <td>{{this.rental_date}}</td>
             <td>{{this.due_date}}</td>
             <td>{{this.all_items_return_at}}</td>
             <td>{{this.rental_status}}</td>
             <td>{{this.deposit_amount}}</td>
 
-            {{! DELETE form }}
-            <form id='delete_rental_form'>
-                <input type='hidden' name='delete_rental_id' value='{{this.rental_id}}' />
-                <td>
-                    <button type='submit'>
-                        Delete
-                    </button>
-                </td>
-            </form>
+            {{! DELETE button }}
+            <td>
+                <form method="POST" action="/rentals/delete" class="delete-rental-form">
+                    <input type="hidden" name="rental_id" value="{{this.rental_id}}" />
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
         </tr>
         {{/each}}
     </tbody>
@@ -109,5 +109,5 @@
     <label for='update_deposit'>Deposit:</label>
     <input type='number' name='update_deposit' id='update_deposit' step="0.01" min="0" required />
 
-    <input type="submit" />
+    <input type="submit" value="Update" />
 </form>
