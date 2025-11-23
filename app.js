@@ -1,5 +1,4 @@
-//Citation: this is modified and updated based the sample code 
-// from Build app.js section of Exploration Web Application Technology
+//Citation: this is the sample code from Build app.js section of Exploration Web Application Technology
 //
 // ########################################
 // ########## SETUP
@@ -101,6 +100,346 @@ app.get('/payments', async function (req, res) {
         res.status(500).send('An error occurred while executing the database queries for payments.');
     }
 });
+
+
+// Citation for the following code: 
+// Date: 17/19/2025
+// Code based on CREATE, UPDATE, DELETE ROUTES sample code from exploration of module 8
+
+// CREATE Customer ROUTES 
+app.post('/customers/create', async function (req, res) {
+    try {
+        // Parse frontend form information 
+        let data = req.body;
+
+        // Cleanse data - check if numbers are actually number type 
+        // No numbers in create Customer 
+
+        // Create and execute queries 
+        // Using parameterized queries 
+        const query1 = `CALL sp_CreateCustomer(?, ?, ?, ?, @new_id);`;
+
+        // Store ID of last inserted row 
+        await db.query(query1, [
+            data.create_customer_first_name,
+            data.create_customer_last_name,
+            data.create_customer_address,
+            data.create_customer_email,
+        ]);
+
+        // get the new id by selecting the session variable
+        const [[idResult]] = await db.query('SELECT @new_id as new_id');
+        const newId = idResult.new_id;
+
+        console.log(`CREATE customer ID: ${newId} ` +
+            `Name: ${data.create_customer_first_name} ${data.create_customer_last_name}`
+        );
+
+        // Redirect the user to the updated webpage
+        res.redirect('/customers')
+
+    } catch (error) {
+        console.error('Error executing queries for creating customer:', error);
+        res.status(500).send('An error occurred while executing the database queries to create customer.');
+    }
+});
+
+// Customer UPDATE ROUTES 
+app.post('/customers/update', async function (req, res) {
+    try {
+        // Parse frontend information form 
+        const data = req.body;
+
+        // cleanse data and check if numbers are in number type 
+
+        // create and execute query 
+        const query1 = 'CALL sp_UpdateCustomer(?, ?, ?, ?, ?);';
+        const query2 = 'SELECT first_name, last_name, address, email FROM Customers WHERE customer_id = ?;';
+        await db.query(query1, [
+            data.update_customer_id,
+            data.update_customer_first_name,
+            data.update_customer_last_name,
+            data.update_customer_address,
+            data.update_customer_email,
+        ]);
+        const [[rows]] = await db.query(query2, [data.update_customer_id]);
+
+        console.log(`UPDATE customer ID: ${data.update_customer_id} ` +
+            `Name: ${rows.first_name} ${rows.last_name} ` +
+            `Address and Email: ${rows.address} ${rows.email}`
+        );
+
+        // Redirect the user to the updated webpage 
+        res.redirect('/customers');
+
+    } catch (error) {
+        console.error('Error executing queries for updating customer:', error);
+        res.status(500).send('An error occured while executing the database queries to update customer.');
+    }
+});
+
+// DELETE CUSTOMER ROUTES 
+app.post('/customers/delete', async function (req, res) {
+    try {
+        // parse information from form 
+        let data = req.body;
+
+        // create and execute our query 
+        // using parameterized queries to prevent sql injection attacks
+        const query1 = `CALL sp_DeleteCustomer(?)`;
+        await db.query(query1, [data.delete_customer_id]);
+
+        console.log(`DELETE customer ID: ${data.delete_customer_id} ` +
+            `Name: ${data.delete_customer_name} `
+        );
+
+        // redirect the user to the updated webpage data 
+        res.redirect('/customers')
+    } catch (error) {
+        console.error('Error executing queries for deleting customer:', error);
+        res.status(500).send('An error occured while executing the database queries to deleting customer.');
+    }
+});
+
+// CREATE ITEM ROUTE 
+app.post('/items/create', async function (req, res) {
+    try {
+        let data = req.body;
+
+        const query1 = `CALL sp_CreateItem(?, ?, ?, ?, ?, ?, ?, @new_id);`;
+        await db.query(query1, [
+            data.create_item_name,
+            data.create_description,
+            data.create_size,
+            data.create_color,
+            data.create_sku,
+            data.create_daily_rate,
+            data.create_item_status,
+        ]);
+
+        const [[result]] = await db.query('SELECT @new_id as new_id');
+        const newItemId = result.new_id;
+
+        console.log(`CREATE item ID: ${newItemId} ` + `Name: ${data.create_item_name}`);
+
+        res.redirect('/items');
+
+    } catch (error) {
+        console.error('Error executing queries for creating items:', error);
+        res.status(500).send('An error occured while executing the database queries to creating items.');
+    }
+});
+
+
+// Item UPDATE ROUTES 
+app.post('/items/update', async function (req, res) {
+    try {
+        // Parse frontend information form 
+        const data = req.body;
+
+        // Debug: Log the incoming data
+        console.log('Update data received:', data);
+
+        // Create and execute query - FIXED: removed extra comma/placeholder
+        const query1 = 'CALL sp_UpdateItem(?, ?, ?, ?, ?, ?, ?, ?);';
+        const query2 = 'SELECT item_name, description, size, color, sku, daily_rate, item_status FROM Items WHERE item_id = ?;';
+
+        // Debug: Log the parameters
+        const params = [
+            data.update_item_id,
+            data.update_item_name,
+            data.update_description,
+            data.update_size,
+            data.update_color,
+            data.update_sku,
+            data.update_daily_rate,
+            data.update_item_status
+        ];
+
+        console.log('Parameters being passed:', params);
+
+        await db.query(query1, params);
+
+        const [[rows]] = await db.query(query2, [data.update_item_id]);
+
+        console.log(`UPDATE item ID: ${data.update_item_id} Name: ${rows.item_name}`);
+
+        // Redirect the user to the updated webpage 
+        res.redirect('/items');
+
+    } catch (error) {
+        console.error('Error executing queries for updating items:', error);
+        res.status(500).send('An error occurred while executing the database queries to update items.');
+    }
+});
+
+// DELETE Item ROUTES 
+app.post('/items/delete', async function (req, res) {
+    try {
+        // parse information from form 
+        let data = req.body;
+
+        // create and execute our query 
+        // using parameterized queries to prevent sql injection attacks
+        const query1 = `CALL sp_DeleteItem(?)`;
+        await db.query(query1, [data.delete_item_id]);
+
+        console.log(`DELETE customer ID: ${data.delete_item_id} ` +
+            `Name: ${data.delete_item_name} `
+        );
+
+        // redirect the user to the updated webpage data 
+        res.redirect('/items')
+    } catch (error) {
+        console.error('Error executing queries for deleting items:', error);
+        res.status(500).send('An error occured while executing the database queries to deleting items.');
+    }
+});
+
+
+// CREATE Rental ROUTE 
+app.post('/rentals/create', async function (req, res) {
+    try {
+        let data = req.body;
+
+        const query1 = `CALL sp_CreateRental(?, ?, ?, ?, ?, ?, @new_id);`;
+        await db.query(query1, [
+            data.customer_id,
+            data.create_rental_date,
+            data.create_due_date,
+            data.create_all_return_date,
+            data.create_rental_status,
+            data.create_deposit_amount,
+        ]);
+
+        const [[result]] = await db.query('SELECT @new_id as new_id');
+        const newRentalId = result.new_id;
+
+        console.log(`CREATE item ID: ${newRentalId} `);
+
+        res.redirect('/rentals');
+
+    } catch (error) {
+        console.error('Error executing queries for creating rentals:', error);
+        res.status(500).send('An error occured while executing the database queries to creating rentals.');
+    }
+});
+
+
+// Rental UPDATE ROUTES 
+app.post('/rentals/update', async function (req, res) {
+    try {
+        // Parse frontend information form 
+        const data = req.body;
+
+        // Debug: log incoming data
+        console.log('Update rental data:', data);
+
+        // The customer_name field actually contains the customer_id as its value
+        // because we're using <option value="{{this.customer_id}}"> in the form
+        const customerId = parseInt(data.update_customer_name);
+        const depositAmount = parseFloat(data.update_deposit_amount);
+
+        // Using stored procedure
+        const query = 'CALL sp_UpdateRental(?, ?, ?, ?, ?, ?, ?);';
+        await db.query(query, [
+            data.update_rental_id,
+            customerId,
+            data.update_rental_date,
+            data.update_due_date,
+            data.update_all_items_return_at || null,
+            data.update_rental_status,
+            depositAmount
+        ]);
+
+        console.log(`UPDATE rental ID: ${data.update_rental_id} for customer ID: ${customerId}`);
+        res.redirect('/rentals');
+
+    } catch (error) {
+        console.error('Error executing queries for updating rental:', error);
+        res.status(500).send('An error occurred while executing the database queries to update rental.');
+    }
+});
+
+
+// DELETE RENTAL ROUTES 
+app.post('/rentals/delete', async function (req, res) {
+    try {
+        // parse information from form 
+        let data = req.body;
+
+        // create and execute our query 
+        // using parameterized queries to prevent sql injection attacks
+        const query1 = `CALL sp_DeleteRental(?)`;
+        await db.query(query1, [data.delete_rental_id]);
+
+        console.log(`DELETE customer ID: ${data.delete_rental_id} `);
+
+        // redirect the user to the updated webpage data 
+        res.redirect('/rentals')
+    } catch (error) {
+        console.error('Error executing queries for deleting rentals:', error);
+        res.status(500).send('An error occured while executing the database queries to deleting rentals.');
+    }
+});
+
+
+
+// Rental_Items UPDATE ROUTES 
+app.post('/rental_items/update', async function (req, res) {
+    try {
+        // Parse frontend information form 
+        const data = req.body;
+
+        // Debug: log incoming data
+        console.log('Update rental items data:', data);
+
+        const lineDailyRate = parseFloat(data.update_line_daily_rate);
+
+        // Using stored procedure
+        const query = 'CALL sp_UpdateRentalItem(?, ?, ?, ?, ?, ?);';
+        await db.query(query, [
+            data.update_rental_item_id,
+            data.update_rental_id,
+            data.update_item_id,
+            data.update_item_due_date,
+            data.update_item_returned_at,
+            lineDailyRate
+        ]);
+
+        console.log(`UPDATE rental item ID: ${data.update_rental_item_id} `);
+        res.redirect('/rental_items');
+
+    } catch (error) {
+        console.error('Error executing queries for updating rental items:', error);
+        res.status(500).send('An error occurred while executing the database queries to update rental items.');
+    }
+});
+
+// DELETE Rental_Item ROUTES
+app.post('/rental_items/delete', async function (req, res) {
+    try {
+        // Parse frontend form information
+        let data = req.body;
+
+        // Create and execute our query
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_DeleteRentalItem(?);`;
+        await db.query(query1, [data.delete_rental_item_id]);
+
+        console.log(`DELETE rental_item ID: ${data.delete_rental_item_id} `);
+
+        // Redirect the user to the updated webpage data
+        res.redirect('/rental_items');
+    } catch (error) {
+        console.error('Error executing queries for deleting rental_items:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            'An error occurred while executing the database queries for deleting rental_items.'
+        );
+    }
+});
+
 
 // ########################################
 // ########## LISTENER

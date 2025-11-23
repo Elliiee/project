@@ -28,7 +28,7 @@
             {{! DELETE button }}
             <td>
                 <form method="POST" action="/rentals/delete" class="delete-rental-form">
-                    <input type="hidden" name="rental_id" value="{{this.rental_id}}" />
+                    <input type="hidden" name="delete_rental_id" value="{{this.rental_id}}" />
                     <button type="submit">Delete</button>
                 </form>
             </td>
@@ -39,11 +39,14 @@
 
 {{! CREATE Form }}
 <h2> Create a Rental</h2>
-<form class="cuForm" id="create_rental_form">
-    <label for="create_rental_customer">Customer:</label>
-    <select>
+<form class="cuForm" id="create_rental_form" method="POST" action="/rentals/create">
+    <label for='customer_id'>Customer: </label>
+    <select name='customer_id' id='customer_id' required>
+        <option value='' disabled selected>Select a customer</option>
         {{#each customer}}
-        <option value="{{this.customer_id}}" required>{{this.first_name}} {{this.last_name}}</option>
+        <option value='{{this.customer_id}}'>
+            {{this.customer_id}} - {{this.first_name}} {{this.last_name}}
+        </option>
         {{/each}}
     </select>
 
@@ -65,26 +68,30 @@
         <option value='cancelled'>Cancelled</option>
     </select>
 
-    <label for='create_deposit'>Deposit:</label>
-    <input type='number' name='create_deposit' id='create_deposit' step="0.01" min="0" required />
+    <label for='create_deposit_amount'>Deposit:</label>
+    <input type='number' name='create_deposit_amount' id='create_deposit_amount' step="0.01" min="0" required />
 
     <input type="submit" />
 </form>
 
 {{! UPDATE Form }}
 <h2> Update a Rental</h2>
-<form class="cuForm" id="update_rental_form">
+<form class="cuForm" id="update_rental_form" method="POST" action="/rentals/update">
     <label for="update_rental_id">Rental ID:</label>
-    <select>
+    <select name="update_rental_id" id="update_rental_id" required>
+        <option value="" disabled selected>Select a rental</option>
         {{#each rental}}
-        <option value="{{this.rental_id}}" required>{{this.rental_id}}</option>
+        <option value="{{this.rental_id}}">
+            {{this.rental_id}}
+        </option>
         {{/each}}
     </select>
 
-    <label for="update_rental_customer">Customer:</label>
-    <select>
+    <label for="update_customer_name">Customer:</label>
+    <select name="update_customer_name" id="update_customer_name" required>
+        <option value="" disabled selected>Select a customer</option>
         {{#each customer}}
-        <option value="{{this.customer_id}}" required>{{this.first_name}} {{this.last_name}}</option>
+        <option value="{{this.customer_id}}">{{this.first_name}} {{this.last_name}}</option>
         {{/each}}
     </select>
 
@@ -106,8 +113,8 @@
         <option value='cancelled'>Cancelled</option>
     </select>
 
-    <label for='update_deposit'>Deposit:</label>
-    <input type='number' name='update_deposit' id='update_deposit' step="0.01" min="0" required />
+    <label for='update_deposit_amount'>Deposit:</label>
+    <input type='number' name='update_deposit_amount' id='update_deposit_amount' step="0.01" min="0" required />
 
     <input type="submit" value="Update" />
 </form>

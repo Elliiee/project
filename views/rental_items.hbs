@@ -25,7 +25,7 @@
             <td>{{this.item_returned_at}}</td>
             <td>{{this.line_daily_rate}}</td>
 
-            <form id='delete_rental_item_form'>
+            <form id='delete_rental_item_form' method="POST" action="/rental_items/delete">
                 <input type='hidden' name='delete_rental_item_id' value='{{this.rental_item_id}}' />
                 <td>
                     <button type='submit'>
@@ -40,7 +40,7 @@
 
 {{! UPDATE form }}
 <h2>Update a rental item</h2>
-<form class='cuForm' id='update_rental_item_form'>
+<form class='cuForm' id='update_rental_item_form' method="POST" action="/rental_items/update">
     <label for='update_rental_item_id'>Select Rental_Item ID to Update: </label>
     <select name='update_rental_item_id' id='update_rental_item_id' required>
         <option value='' disabled selected>Select a rental item id</option>
