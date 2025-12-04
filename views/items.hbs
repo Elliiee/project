@@ -38,9 +38,11 @@
     </tbody>
 </table>
 
+
+
 {{! CREATE form }}
 <h2>Create an item</h2>
-<form class='cuForm' id='create_item_form' method=" POST" action="/items/create">
+<form class='cuForm' id='create_item_form' method="POST" action="/items/create">
     <label for='create_item_name'>Item Name: </label>
     <input type='text' name='create_item_name' id='create_item_name' required />
 
@@ -60,17 +62,19 @@
     <input type='number' name='create_daily_rate' id='create_daily_rate' step="0.01" min="0" required />
 
     <label for='create_item_status'>Item_status:</label>
-    <select name='create_item_status' id='create_item_status'>
+    <select name='create_item_status' id='create_item_status' required>
         <option value=''>Select an Item_status</option>
-        <option value='available'>Available</option>
-        <option value='rented'>Rented</option>
-        <option value='cleaning'>Cleaning</option>
-        <option value='repair'>Repair</option>
-        <option value='retired'>Retired</option>
+        <option value='Available'>Available</option>
+        <option value='Rented'>Rented</option>
+        <option value='Cleaning'>Cleaning</option>
+        <option value='Repair'>Repair</option>
+        <option value='Retired'>Retired</option>
     </select>
 
-    <input type='submit' />
+    <input type='submit' value="Create" />
 </form>
+
+
 
 {{! UPDATE form }}
 <h2>Update an item</h2>

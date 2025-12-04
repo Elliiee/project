@@ -24,6 +24,29 @@ app.set('view engine', '.hbs'); // Use handlebars engine for *.hbs files.
 // ########################################
 // ########## ROUTE HANDLERS
 
+// ADD THIS DEBUGGING MIDDLEWARE
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    console.log('Body:', req.body);
+    next();
+});
+
+
+// ########################################
+// ########## RESET DB
+app.post('/home/reset', async (req, res) => {
+    try {
+        let data = req.body;
+
+        const [results] = await db.execute('CALL sp_ResetDatabase();');
+
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error executing queries for reset database:', error);
+        res.status(500).send('An error occurred while executing the database queries to reset.');
+    }
+});
+
 // READ ROUTES
 app.get('/', async function (req, res) {
     try {
@@ -58,6 +81,7 @@ app.get('/items', async function (req, res) {
     }
 });
 
+
 app.get('/rentals', async function (req, res) {
     try {
         const query1 = 'SELECT Rentals.rental_id, Customers.customer_id, Customers.first_name, \
@@ -77,11 +101,33 @@ app.get('/rentals', async function (req, res) {
 
 app.get('/rental_items', async function (req, res) {
     try {
-        const query1 = 'SELECT Rental_Items.rental_item_id, Rental_Items.rental_id, Rental_Items.item_id, \
-        Items.item_name, Rental_Items.item_due_date, Rental_Items.item_returned_at, Rental_Items.line_daily_rate \
-        FROM Rental_Items JOIN Items ON Items.item_id = Rental_Items.rental_item_id';
+        // Get rental items with item names
+        const query1 = `SELECT 
+            Rental_Items.rental_item_id, 
+            Rental_Items.rental_id, 
+            Rental_Items.item_id,
+            Items.item_name,
+            Rental_Items.item_due_date,
+            Rental_Items.item_returned_at,
+            Rental_Items.line_daily_rate
+        FROM Rental_Items 
+        JOIN Items ON Items.item_id = Rental_Items.item_id`;
+
+        // Get rentals for dropdown
+        const query2 = 'SELECT rental_id FROM Rentals';
+
+        // Get items for dropdown
+        const query3 = 'SELECT item_id, item_name FROM Items';
+
         const [rental_item] = await db.query(query1);
-        res.render('rental_items', { rental_item: rental_item });
+        const [rentals] = await db.query(query2);
+        const [items] = await db.query(query3);
+
+        res.render('rental_items', {
+            rental_item: rental_item,
+            rentals: rentals,
+            items: items
+        });
     } catch (error) {
         console.error('Error executing queries for rental_items:', error);
         res.status(500).send('An error occurred while executing the database queries for rental_items.');
@@ -202,31 +248,50 @@ app.post('/customers/delete', async function (req, res) {
 });
 
 // CREATE ITEM ROUTE 
+// CREATE ITEM ROUTE 
 app.post('/items/create', async function (req, res) {
+    console.log('=== CREATE ITEM ROUTE HIT ===');
+    console.log('Form data:', req.body);
+
     try {
         let data = req.body;
 
+        // If form uses lowercase, convert to proper case
+        // If you changed form to use capitalized values, this still works
+        const itemStatus = data.create_item_status.charAt(0).toUpperCase() +
+            data.create_item_status.slice(1).toLowerCase();
+
         const query1 = `CALL sp_CreateItem(?, ?, ?, ?, ?, ?, ?, @new_id);`;
+        console.log('Executing query with params:', [
+            data.create_item_name,
+            data.create_description,
+            data.create_size,
+            data.create_color,
+            data.create_sku || null,  // Handle optional sku
+            parseFloat(data.create_daily_rate),
+            itemStatus,
+        ]);
+
         await db.query(query1, [
             data.create_item_name,
             data.create_description,
             data.create_size,
             data.create_color,
-            data.create_sku,
-            data.create_daily_rate,
-            data.create_item_status,
+            data.create_sku || null,  // sku can be null
+            parseFloat(data.create_daily_rate),
+            itemStatus,
         ]);
 
         const [[result]] = await db.query('SELECT @new_id as new_id');
         const newItemId = result.new_id;
 
-        console.log(`CREATE item ID: ${newItemId} ` + `Name: ${data.create_item_name}`);
+        console.log(`CREATE item ID: ${newItemId} Name: ${data.create_item_name}`);
 
-        res.redirect('/items');
+        return res.redirect('/items');
 
     } catch (error) {
         console.error('Error executing queries for creating items:', error);
-        res.status(500).send('An error occured while executing the database queries to creating items.');
+        return res.status(500).send('Error executing queries for creating items:');
     }
 });
 
@@ -373,7 +438,7 @@ app.post('/rentals/delete', async function (req, res) {
         const query1 = `CALL sp_DeleteRental(?)`;
         await db.query(query1, [data.delete_rental_id]);
 
-        console.log(`DELETE customer ID: ${data.delete_rental_id} `);
+        console.log(`DELETE rental ID: ${data.delete_rental_id} `);
 
         // redirect the user to the updated webpage data 
         res.redirect('/rentals')
@@ -383,6 +448,43 @@ app.post('/rentals/delete', async function (req, res) {
     }
 });
 
+// CREATE Rental_Items ROUTES 
+app.post('/rental_items/create', async function (req, res) {
+    try {
+        let data = req.body;
+
+        // Convert optional date to datetime format - handle empty/null values
+        let returnedAt = null;
+        if (data.create_item_returned_at && data.create_item_returned_at.trim() !== '') {
+            returnedAt = new Date(data.create_item_returned_at).toISOString().slice(0, 19).replace('T', ' ');
+        }
+
+        const query1 = `CALL sp_CreateRentalItem(?, ?, ?, ?, ?, @new_id);`;
+
+        // Execute stored procedure - WITHOUT item_name
+        await db.query(query1, [
+            data.create_rental_id,
+            data.create_item_id,
+            data.create_item_due_date,
+            returnedAt,
+            parseFloat(data.create_line_daily_rate)
+        ]);
+
+        // Get the output parameter
+        const [[{ new_id }]] = await db.query('SELECT @new_id as new_id');
+
+        console.log(`CREATE rental item. ID: ${new_id}, ` +
+            `Rental ID: ${data.create_rental_id}, ` +
+            `Item ID: ${data.create_item_id}`
+        );
+
+        res.redirect('/rental_items');
+
+    } catch (error) {
+        console.error('Error executing queries for creating rental_items:', error);
+        res.status(500).send('Error executing queries for creating rental_items:');
+    }
+});
 
 
 // Rental_Items UPDATE ROUTES 
@@ -436,6 +538,159 @@ app.post('/rental_items/delete', async function (req, res) {
         // Send a generic error message to the browser
         res.status(500).send(
             'An error occurred while executing the database queries for deleting rental_items.'
+        );
+    }
+});
+
+
+
+// CREATE PAYMENT ROUTES 
+app.post('/payments/create', async function (req, res) {
+    try {
+        let data = req.body;
+
+        // Convert form data to match stored procedure parameters
+        // Note: Form uses lowercase enum values, convert to proper case
+        const paymentStatus = data.create_payment_status.charAt(0).toUpperCase() +
+            data.create_payment_status.slice(1);
+        const paymentMethod = data.create_payment_method.charAt(0).toUpperCase() +
+            data.create_payment_method.slice(1);
+
+        // Convert date to datetime format
+        const paidAt = new Date(data.create_payment_date).toISOString().slice(0, 19).replace('T', ' ');
+
+        const query1 = `CALL sp_CreatePayment(?, ?, ?, ?, ?, ?, ?, ?, @new_id);`;
+
+        // Execute stored procedure
+        await db.query(query1, [
+            data.create_rental_id,
+            parseFloat(data.create_payment_amount),
+            paymentStatus,
+            paymentMethod,
+            paidAt,
+            data.create_transaction_number,
+            data.create_card_last4 || null,  // Handle optional fields
+            data.create_card_brand || null   // Handle optional fields
+        ]);
+
+        // Get the output parameter
+        const [[{ new_id }]] = await db.query('SELECT @new_id as new_id');
+
+        console.log(`CREATE payment. ID: ${new_id}, ` +
+            `Rental ID: ${data.create_rental_id}, ` +
+            `Payment amount: ${data.create_payment_amount}`
+        );
+
+        res.redirect('/payments')
+    } catch (error) {
+        console.error('Error executing queries for creating payments:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            'An error occurred while executing the database queries for creating payments.'
+        );
+    }
+});
+
+
+// UPDATE PAYMENT ROUTES // Payment UPDATE ROUTE
+app.post('/payments/update', async function (req, res) {
+    try {
+        const data = req.body;
+
+        // Validate payment amount
+        const paymentAmount = parseFloat(data.update_payment_amount);
+        if (isNaN(paymentAmount) || paymentAmount <= 0) {
+            console.error('Invalid payment amount:', data.update_payment_amount);
+            return res.redirect('/payments?error=Invalid payment amount');
+        }
+
+        // Validate payment date
+        if (!data.update_payment_date || data.update_payment_date.trim() === '') {
+            console.error('Missing payment date');
+            return res.redirect('/payments?error=Payment date is required');
+        }
+
+        const paymentDate = new Date(data.update_payment_date);
+        if (isNaN(paymentDate.getTime())) {
+            console.error('Invalid payment date:', data.update_payment_date);
+            return res.redirect('/payments?error=Invalid payment date format');
+        }
+
+        // Convert enum values to proper case
+        const paymentStatus = data.update_payment_status.toLowerCase();
+        const dbPaymentStatus = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
+
+        const paymentMethod = data.update_payment_method.toLowerCase();
+        const dbPaymentMethod = paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1);
+
+        // Format date for database
+        const formattedPaymentDate = paymentDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        // Handle optional fields
+        const cardLast4 = data.update_card_last4 && data.update_card_last4.trim() !== ''
+            ? data.update_card_last4.trim()
+            : null;
+        const cardBrand = data.update_card_brand && data.update_card_brand.trim() !== ''
+            ? data.update_card_brand.trim()
+            : null;
+
+
+        // Use your stored procedure or direct UPDATE
+        const query = `
+            UPDATE Payments 
+            SET rental_id = ?, 
+                amount = ?, 
+                payment_status = ?, 
+                payment_method = ?, 
+                paid_at = ?, 
+                transaction_number = ?, 
+                card_last4 = ?, 
+                card_brand = ?
+            WHERE payment_id = ?;
+        `;
+
+        await db.query(query, [
+            data.update_rental_id,
+            paymentAmount,
+            dbPaymentStatus,
+            dbPaymentMethod,
+            formattedPaymentDate,
+            data.update_transaction_number,
+            cardLast4,
+            cardBrand,
+            data.update_payment_id
+        ]);
+
+        console.log(`UPDATE payment ID: ${data.update_payment_id}, Amount: $${paymentAmount.toFixed(2)}`);
+        res.redirect('/payments');
+
+    } catch (error) {
+        console.error('Error executing queries for updating payment:', error);
+        res.redirect('/payments?error=Database error');
+    }
+});
+
+
+// DELETE PAYMENT ROUTE
+app.post('/payments/delete', async function (req, res) {
+    try {
+        // Parse frontend form information
+        let data = req.body;
+
+        // Create and execute our query
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_DeletePayment(?);`;
+        await db.query(query1, [data.delete_payment_id]);
+
+        console.log(`DELETE payment ID: ${data.delete_payment_id} `);
+
+        // Redirect the user to the updated webpage data
+        res.redirect('/payments');
+    } catch (error) {
+        console.error('Error executing deleting payment queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            'An error occurred while executing the deleting payment queries.'
         );
     }
 });

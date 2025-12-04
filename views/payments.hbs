@@ -26,7 +26,7 @@
             <td>{{this.card_brand}}</td>
 
             {{! DELETE form }}
-            <form id='delete_payment_form'>
+            <form id='delete_payment_form' method="POST" action="/payments/delete">
                 <input type='hidden' name='delete_payment_id' value='{{this.payment_id}}' />
                 <td>
                     <button type='submit'>
@@ -40,66 +40,72 @@
 </table>
 
 {{! CREATE Form }}
-<h2> Create a Payment</h2>
-<form class="cuForm" id="create_payment_form">
-    <label for="create_payment">Rental ID:</label>
-    <select>
+<h2>Create a Payment</h2>
+<form class="cuForm" id="create_payment_form" method="POST" action="/payments/create">
+    <label for="create_rental_id">Rental ID:</label>
+    <select name="create_rental_id" id="create_rental_id" required>
+        <option value="">Select Rental ID</option>
         {{#each rental}}
-        <option value="{{this.rental_id}}" required>Choose Rental ID</option>
+        <option value="{{this.rental_id}}">{{this.rental_id}}</option>
         {{/each}}
     </select>
 
-    <label for="create_payment_amount">Payment amount: </label>
+    <label for="create_payment_amount">Payment amount:</label>
     <input type="number" name="create_payment_amount" id="create_payment_amount" step="0.01" min="0" required />
 
     <label for='create_payment_status'>Payment status:</label>
     <select name='create_payment_status' id='create_payment_status' required>
         <option value=''>Select Payment status</option>
-        <option value='authorized'>Authorized</option>
-        <option value='captured'>Captured</option>
-        <option value='refunded'>Refunded</option>
-        <option value='failed'>Failed</option>
-        <option value='voided'>Voided</option>
+        <option value='Authorized'>Authorized</option>
+        <option value='Captured'>Captured</option>
+        <option value='Refunded'>Refunded</option>
+        <option value='Failed'>Failed</option>
+        <option value='Voided'>Voided</option>
     </select>
 
     <label for='create_payment_method'>Payment method:</label>
     <select name='create_payment_method' id='create_payment_method' required>
-        <option value=''>Select Payment_method</option>
-        <option value='card'>Card</option>
-        <option value='cash'>Cash</option>
-        <option value='paypal'>PayPal</option>
-        <option value='bank'>Bank</option>
+        <option value=''>Select Payment method</option>
+        <option value='Card'>Card</option>
+        <option value='Cash'>Cash</option>
+        <option value='PayPal'>PayPal</option>
+        <option value='Bank'>Bank</option>
     </select>
 
-    <label for="create_payment_date">Payment date: </label>
-    <input type="Date" name="create_payment_date" id="create_payment_date" required />
+    <label for="create_payment_date">Payment date:</label>
+    <input type="datetime-local" name="create_payment_date" id="create_payment_date" required />
 
-    <label for="create_transaction_number">Transaction number: </label>
-    <input type="text" name="create_transaction_number" id="create_transaction_number" required />
+    <label for="create_transaction_number">Transaction number:</label>
+    <input type="text" name="create_transaction_number" id="create_transaction_number" maxlength="64" required />
 
-    <label for='create_card_last4'>Card_last4:</label>
-    <input type='text' name='create_card_last4' id='create_card_last4' />
+    <label for='create_card_last4'>Card last 4 digits:</label>
+    <input type='text' name='create_card_last4' id='create_card_last4' maxlength="4" pattern="[0-9]{4}" />
 
-    <label for='create_card_brand'>Bank:</label>
-    <input type='text' name='create_card_brand' id='create_card_brand' />
+    <label for='create_card_brand'>Card brand:</label>
+    <input type='text' name='create_card_brand' id='create_card_brand' maxlength="20" />
 
-    <input type="submit" />
+    <input type="submit" value="Create" />
 </form>
+
+
 
 {{! UPDATE Form }}
 <h2> Update a Payment</h2>
-<form class="cuForm" id="update_payment_form">
-    <label for="update_payment">Payment ID:</label>
-    <select>
+<form class="cuForm" id="update_payment_form" method="POST" action="/payments/update">
+    <label for="update_payment_id">Payment ID to Update:</label>
+    <select name="update_payment_id" id="update_payment_id" required>
+        <option value="" disabled selected>Choose Payment ID</option>
         {{#each payment}}
-        <option value="{{this.payment_id}}" required>Choose Payment ID</option>
+        <option value="{{this.payment_id}}">{{this.payment_id}} - ${{this.payment_amount}} (Rental: {{this.rental_id}})
+        </option>
         {{/each}}
     </select>
 
-    <label for="update_rental_id">Payment amount:</label>
-    <select>
+    <label for="update_rental_id">Rental ID:</label>
+    <select name="update_rental_id" id="update_rental_id" required>
+        <option value="" disabled selected>Choose Rental ID</option>
         {{#each rental}}
-        <option value="{{this.rental_id}}" required>Choose Rental ID</option>
+        <option value="{{this.rental_id}}">Rental ID: {{this.rental_id}}</option>
         {{/each}}
     </select>
 

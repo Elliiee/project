@@ -38,6 +38,47 @@
     </tbody>
 </table>
 
+
+
+{{! CREATE Rental_Item form }}
+<h2>Create a rental item</h2>
+<form class='cuForm' id='create_rental_item_form' method="POST" action="/rental_items/create">
+    <label for='create_rental_id'>Rental ID: </label>
+    <select name='create_rental_id' id='create_rental_id' required>
+        <option value='' disabled selected>rental id</option>
+        {{#each rental_item}}
+        <option value='{{this.rental_id}}' required>
+            {{this.rental_id}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='create_item_id'>Item ID: </label>
+    <select name='create_item_id' id='create_item_id' required>
+        <option value='' disabled selected>item id</option>
+        {{#each rental_item}}
+        <option value='{{this.item_id}}' required>
+            {{this.item_id}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='create_item_name'>Item Name default by item id</label>
+    <select name="create_item_name" id="create_item_name">Item name default by item id</select>
+
+    <label for='create_item_due_date'>Item due date: </label>
+    <input type='Date' name='create_item_due_date' id='create_item_due_date' required />
+
+    <label for='create_item_returned_at'>Item returned at: </label>
+    <input type='Date' name='create_item_returned_at' id='create_item_returned_at' />
+
+    <label for='create_line_daily_rate'>Line daily rate:</label>
+    <input type='number' name='create_line_daily_rate' id='create_line_daily_rate' step="0.01" min="0" required />
+
+    <input type='submit' value="Create" />
+</form>
+
+
 {{! UPDATE form }}
 <h2>Update a rental item</h2>
 <form class='cuForm' id='update_rental_item_form' method="POST" action="/rental_items/update">
