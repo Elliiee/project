@@ -4,7 +4,7 @@
 -- Create Item
 DROP PROCEDURE IF EXISTS sp_CreateItem;
 
-DELIMITER / /
+DELIMITER //
 
 CREATE PROCEDURE sp_CreateItem (
     IN p_item_name VARCHAR(255),

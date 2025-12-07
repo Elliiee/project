@@ -616,24 +616,8 @@ app.post('/payments/update', async function (req, res) {
             return res.redirect('/payments?error=Invalid payment date format');
         }
 
-        // Convert enum values to proper case
-        const paymentStatus = data.update_payment_status.toLowerCase();
-        const dbPaymentStatus = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
-
-        const paymentMethod = data.update_payment_method.toLowerCase();
-        const dbPaymentMethod = paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1);
-
         // Format date for database
         const formattedPaymentDate = paymentDate.toISOString().slice(0, 19).replace('T', ' ');
-
-        // Handle optional fields
-        const cardLast4 = data.update_card_last4 && data.update_card_last4.trim() !== ''
-            ? data.update_card_last4.trim()
-            : null;
-        const cardBrand = data.update_card_brand && data.update_card_brand.trim() !== ''
-            ? data.update_card_brand.trim()
-            : null;
-
 
         // Use your stored procedure or direct UPDATE
         const query = `
@@ -662,11 +646,14 @@ app.post('/payments/update', async function (req, res) {
         ]);
 
         console.log(`UPDATE payment ID: ${data.update_payment_id}, Amount: $${paymentAmount.toFixed(2)}`);
+
         res.redirect('/payments');
 
     } catch (error) {
         console.error('Error executing queries for updating payment:', error);
-        res.redirect('/payments?error=Database error');
+        res.status(500).send(
+            'An error occurred while executing the database queries for updateing payments.'
+        );
     }
 });
 

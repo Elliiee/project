@@ -1,23 +1,28 @@
 -- Citation for the following code:
 -- Date: 11/19/2025
 -- Based on the sample code from "CREATE bsg_people" of module 8 exploration
--- Create Paymen
+-- Create Payment
 DROP PROCEDURE IF EXISTS sp_CreatePayment;
 
-DELIMITER / /
+DELIMITER //
 
 CREATE PROCEDURE sp_CreatePayment (
-    IN p_ental_id INT,
+    IN p_rental_id INT,
     IN p_amount DECIMAL(10,2),
-    IN p_payment_status ENUM('Authorized', 'Captured', 'Refunded', 'Failed', 'Voided')
+    IN p_payment_status ENUM('Authorized', 'Captured', 'Refunded', 'Failed', 'Voided'),
+    IN p_payment_method ENUM('Card', 'Cash', 'PayPal', 'Bank'),
+    IN p_paid_at DATETIME,
+    IN p_transaction_number VARCHAR(64),
+    IN p_card_last4 CHAR(4), 
+    IN p_card_brand VARCHAR(20),
     OUT p_payment_id INT
 )
 BEGIN
-    INSERT INTO Items (`item_name`, `description`, `size`, `color`, `sku`, `daily_rate`, `item_status`)
-    VALUES (p_item_name, p_description, p_size, p_color, p_sku, p_daily_rate, p_item_status);
+    INSERT INTO Payments (`rental_id`, `amount`, `payment_status`, `payment_method`, `paid_at`, `transaction_number`, `card_last4`, `card_brand`)
+    VALUES (p_rental_id, p_amount, p_payment_status, p_payment_method, p_paid_at, p_transaction_number, p_card_last4, p_card_brand);
 
-    -- Store the item_id of the last inserted row
-    SELECT LAST_INSERT_ID() INTO p_item_id;
+    -- Store the p_payment_id of the last inserted row
+    SELECT LAST_INSERT_ID() INTO p_payment_id;
 
 END //
 
