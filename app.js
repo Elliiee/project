@@ -158,9 +158,6 @@ app.post('/customers/create', async function (req, res) {
         // Parse frontend form information 
         let data = req.body;
 
-        // Cleanse data - check if numbers are actually number type 
-        // No numbers in create Customer 
-
         // Create and execute queries 
         // Using parameterized queries 
         const query1 = `CALL sp_CreateCustomer(?, ?, ?, ?, @new_id);`;
@@ -196,8 +193,6 @@ app.post('/customers/update', async function (req, res) {
         // Parse frontend information form 
         const data = req.body;
 
-        // cleanse data and check if numbers are in number type 
-
         // create and execute query 
         const query1 = 'CALL sp_UpdateCustomer(?, ?, ?, ?, ?);';
         const query2 = 'SELECT first_name, last_name, address, email FROM Customers WHERE customer_id = ?;';
@@ -227,11 +222,8 @@ app.post('/customers/update', async function (req, res) {
 // DELETE CUSTOMER ROUTES 
 app.post('/customers/delete', async function (req, res) {
     try {
-        // parse information from form 
         let data = req.body;
 
-        // create and execute our query 
-        // using parameterized queries to prevent sql injection attacks
         const query1 = `CALL sp_DeleteCustomer(?)`;
         await db.query(query1, [data.delete_customer_id]);
 
@@ -239,7 +231,6 @@ app.post('/customers/delete', async function (req, res) {
             `Name: ${data.delete_customer_name} `
         );
 
-        // redirect the user to the updated webpage data 
         res.redirect('/customers')
     } catch (error) {
         console.error('Error executing queries for deleting customer:', error);
@@ -248,7 +239,6 @@ app.post('/customers/delete', async function (req, res) {
 });
 
 // CREATE ITEM ROUTE 
-// CREATE ITEM ROUTE 
 app.post('/items/create', async function (req, res) {
     console.log('=== CREATE ITEM ROUTE HIT ===');
     console.log('Form data:', req.body);
@@ -256,8 +246,6 @@ app.post('/items/create', async function (req, res) {
     try {
         let data = req.body;
 
-        // If form uses lowercase, convert to proper case
-        // If you changed form to use capitalized values, this still works
         const itemStatus = data.create_item_status.charAt(0).toUpperCase() +
             data.create_item_status.slice(1).toLowerCase();
 
@@ -267,7 +255,7 @@ app.post('/items/create', async function (req, res) {
             data.create_description,
             data.create_size,
             data.create_color,
-            data.create_sku || null,  // Handle optional sku
+            data.create_sku || null,  
             parseFloat(data.create_daily_rate),
             itemStatus,
         ]);
@@ -277,7 +265,7 @@ app.post('/items/create', async function (req, res) {
             data.create_description,
             data.create_size,
             data.create_color,
-            data.create_sku || null,  // sku can be null
+            data.create_sku || null,  
             parseFloat(data.create_daily_rate),
             itemStatus,
         ]);
@@ -299,17 +287,11 @@ app.post('/items/create', async function (req, res) {
 // Item UPDATE ROUTES 
 app.post('/items/update', async function (req, res) {
     try {
-        // Parse frontend information form 
         const data = req.body;
 
-        // Debug: Log the incoming data
-        console.log('Update data received:', data);
-
-        // Create and execute query - FIXED: removed extra comma/placeholder
         const query1 = 'CALL sp_UpdateItem(?, ?, ?, ?, ?, ?, ?, ?);';
         const query2 = 'SELECT item_name, description, size, color, sku, daily_rate, item_status FROM Items WHERE item_id = ?;';
 
-        // Debug: Log the parameters
         const params = [
             data.update_item_id,
             data.update_item_name,
@@ -329,7 +311,6 @@ app.post('/items/update', async function (req, res) {
 
         console.log(`UPDATE item ID: ${data.update_item_id} Name: ${rows.item_name}`);
 
-        // Redirect the user to the updated webpage 
         res.redirect('/items');
 
     } catch (error) {
@@ -341,11 +322,8 @@ app.post('/items/update', async function (req, res) {
 // DELETE Item ROUTES 
 app.post('/items/delete', async function (req, res) {
     try {
-        // parse information from form 
         let data = req.body;
 
-        // create and execute our query 
-        // using parameterized queries to prevent sql injection attacks
         const query1 = `CALL sp_DeleteItem(?)`;
         await db.query(query1, [data.delete_item_id]);
 
@@ -353,7 +331,6 @@ app.post('/items/delete', async function (req, res) {
             `Name: ${data.delete_item_name} `
         );
 
-        // redirect the user to the updated webpage data 
         res.redirect('/items')
     } catch (error) {
         console.error('Error executing queries for deleting items:', error);
@@ -394,18 +371,11 @@ app.post('/rentals/create', async function (req, res) {
 // Rental UPDATE ROUTES 
 app.post('/rentals/update', async function (req, res) {
     try {
-        // Parse frontend information form 
         const data = req.body;
 
-        // Debug: log incoming data
-        console.log('Update rental data:', data);
-
-        // The customer_name field actually contains the customer_id as its value
-        // because we're using <option value="{{this.customer_id}}"> in the form
         const customerId = parseInt(data.update_customer_name);
         const depositAmount = parseFloat(data.update_deposit_amount);
 
-        // Using stored procedure
         const query = 'CALL sp_UpdateRental(?, ?, ?, ?, ?, ?, ?);';
         await db.query(query, [
             data.update_rental_id,
@@ -430,17 +400,13 @@ app.post('/rentals/update', async function (req, res) {
 // DELETE RENTAL ROUTES 
 app.post('/rentals/delete', async function (req, res) {
     try {
-        // parse information from form 
         let data = req.body;
 
-        // create and execute our query 
-        // using parameterized queries to prevent sql injection attacks
         const query1 = `CALL sp_DeleteRental(?)`;
         await db.query(query1, [data.delete_rental_id]);
 
         console.log(`DELETE rental ID: ${data.delete_rental_id} `);
 
-        // redirect the user to the updated webpage data 
         res.redirect('/rentals')
     } catch (error) {
         console.error('Error executing queries for deleting rentals:', error);
@@ -453,7 +419,6 @@ app.post('/rental_items/create', async function (req, res) {
     try {
         let data = req.body;
 
-        // Convert optional date to datetime format - handle empty/null values
         let returnedAt = null;
         if (data.create_item_returned_at && data.create_item_returned_at.trim() !== '') {
             returnedAt = new Date(data.create_item_returned_at).toISOString().slice(0, 19).replace('T', ' ');
@@ -461,7 +426,6 @@ app.post('/rental_items/create', async function (req, res) {
 
         const query1 = `CALL sp_CreateRentalItem(?, ?, ?, ?, ?, @new_id);`;
 
-        // Execute stored procedure - WITHOUT item_name
         await db.query(query1, [
             data.create_rental_id,
             data.create_item_id,
@@ -470,7 +434,6 @@ app.post('/rental_items/create', async function (req, res) {
             parseFloat(data.create_line_daily_rate)
         ]);
 
-        // Get the output parameter
         const [[{ new_id }]] = await db.query('SELECT @new_id as new_id');
 
         console.log(`CREATE rental item. ID: ${new_id}, ` +
@@ -490,15 +453,10 @@ app.post('/rental_items/create', async function (req, res) {
 // Rental_Items UPDATE ROUTES 
 app.post('/rental_items/update', async function (req, res) {
     try {
-        // Parse frontend information form 
         const data = req.body;
-
-        // Debug: log incoming data
-        console.log('Update rental items data:', data);
 
         const lineDailyRate = parseFloat(data.update_line_daily_rate);
 
-        // Using stored procedure
         const query = 'CALL sp_UpdateRentalItem(?, ?, ?, ?, ?, ?);';
         await db.query(query, [
             data.update_rental_item_id,
@@ -521,21 +479,16 @@ app.post('/rental_items/update', async function (req, res) {
 // DELETE Rental_Item ROUTES
 app.post('/rental_items/delete', async function (req, res) {
     try {
-        // Parse frontend form information
         let data = req.body;
 
-        // Create and execute our query
-        // Using parameterized queries (Prevents SQL injection attacks)
         const query1 = `CALL sp_DeleteRentalItem(?);`;
         await db.query(query1, [data.delete_rental_item_id]);
 
         console.log(`DELETE rental_item ID: ${data.delete_rental_item_id} `);
 
-        // Redirect the user to the updated webpage data
         res.redirect('/rental_items');
     } catch (error) {
         console.error('Error executing queries for deleting rental_items:', error);
-        // Send a generic error message to the browser
         res.status(500).send(
             'An error occurred while executing the database queries for deleting rental_items.'
         );
@@ -549,19 +502,15 @@ app.post('/payments/create', async function (req, res) {
     try {
         let data = req.body;
 
-        // Convert form data to match stored procedure parameters
-        // Note: Form uses lowercase enum values, convert to proper case
         const paymentStatus = data.create_payment_status.charAt(0).toUpperCase() +
             data.create_payment_status.slice(1);
         const paymentMethod = data.create_payment_method.charAt(0).toUpperCase() +
             data.create_payment_method.slice(1);
 
-        // Convert date to datetime format
         const paidAt = new Date(data.create_payment_date).toISOString().slice(0, 19).replace('T', ' ');
 
         const query1 = `CALL sp_CreatePayment(?, ?, ?, ?, ?, ?, ?, ?, @new_id);`;
 
-        // Execute stored procedure
         await db.query(query1, [
             data.create_rental_id,
             parseFloat(data.create_payment_amount),
@@ -569,11 +518,10 @@ app.post('/payments/create', async function (req, res) {
             paymentMethod,
             paidAt,
             data.create_transaction_number,
-            data.create_card_last4 || null,  // Handle optional fields
-            data.create_card_brand || null   // Handle optional fields
+            data.create_card_last4 || null,  
+            data.create_card_brand || null   
         ]);
 
-        // Get the output parameter
         const [[{ new_id }]] = await db.query('SELECT @new_id as new_id');
 
         console.log(`CREATE payment. ID: ${new_id}, ` +
@@ -584,7 +532,6 @@ app.post('/payments/create', async function (req, res) {
         res.redirect('/payments')
     } catch (error) {
         console.error('Error executing queries for creating payments:', error);
-        // Send a generic error message to the browser
         res.status(500).send(
             'An error occurred while executing the database queries for creating payments.'
         );
@@ -592,7 +539,7 @@ app.post('/payments/create', async function (req, res) {
 });
 
 
-// UPDATE PAYMENT ROUTES // Payment UPDATE ROUTE
+// UPDATE PAYMENT ROUTES
 app.post('/payments/update', async function (req, res) {
     try {
         const data = req.body;
@@ -661,21 +608,17 @@ app.post('/payments/update', async function (req, res) {
 // DELETE PAYMENT ROUTE
 app.post('/payments/delete', async function (req, res) {
     try {
-        // Parse frontend form information
         let data = req.body;
 
         // Create and execute our query
-        // Using parameterized queries (Prevents SQL injection attacks)
         const query1 = `CALL sp_DeletePayment(?);`;
         await db.query(query1, [data.delete_payment_id]);
 
         console.log(`DELETE payment ID: ${data.delete_payment_id} `);
 
-        // Redirect the user to the updated webpage data
         res.redirect('/payments');
     } catch (error) {
         console.error('Error executing deleting payment queries:', error);
-        // Send a generic error message to the browser
         res.status(500).send(
             'An error occurred while executing the deleting payment queries.'
         );
