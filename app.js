@@ -1,4 +1,6 @@
-//Citation: this is the sample code from Build app.js section of Exploration Web Application Technology
+//Citation: this is created based on the sample code from Build app.js section 
+// of Exploration Web Application Technology
+// Date: 11/19/25
 //
 // ########################################
 // ########## SETUP
